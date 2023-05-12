@@ -1,16 +1,18 @@
 '''
 SG
-May 7th 2023
+May 11th 2023
 python 3.10.10
 pyinstaller 5.1
 requests 2.28.1
 bs4 4.11.1
 tk 8.6.12
 playsound 1.2.2
-json 0.9.6
+json ???
+re ???
 
 '''
 
+import re
 import requests
 import bs4
 import time
@@ -47,7 +49,12 @@ def popup_window(current_value):
     popup.attributes('-topmost', True)
     popup.after_idle(popup.attributes, '-topmost', False)
     popup.mainloop()
-    
+
+# sound and window function
+def sound_and_window():
+    playsound("whatever.mp3")
+    popup_window(current_value)
+
 # creating asking window
 asker=Tk()
 asker.title("Input Example")
@@ -56,13 +63,11 @@ asker.geometry("200x200")
 link_value=StringVar()
 price_value=IntVar()
 
-# creating label and textbox for link
+# creating label and textbox for link and price
 link_label=Label(asker, text="Link: \n")
 link_label.pack()
 link_entry=Entry(asker, width=20, textvariable=link_value)
 link_entry.pack()
-
-# creating label and textbox for price
 price_label=Label(asker, text="Price: \n")
 price_label.pack()
 price_entry=Entry(asker, width=20, textvariable=price_value)
@@ -75,46 +80,40 @@ submit_button.pack()
 asker.bind('<Return>', submit)
 asker.mainloop()
 
-#Prime loop
-if 'prime' in link_value.get():
-    while True:
-        time.sleep(3)
+# Main loop
+while True:
+    time.sleep(3)
+    try:
         result=requests.get(link_value.get())
         soup=bs4.BeautifulSoup(result.text,"lxml")
-        current_value=int(soup.select("script",type="text/javascript")[34].text[16:21])
-        if current_value<=price_value.get():
-            playsound("C:\\Users\\thepu\\Downloads\\whatever.mp3")
-            popup_window(current_value)
-            break
-        else:
-            continue
-        
-# MDC loop   
-elif 'mdcomputers' in link_value.get():
-    while True:
-        time.sleep(3)
-        result=requests.get(link_value.get())
-        soup=bs4.BeautifulSoup(result.text,"lxml")
-        current_value=int(float(soup.select_one("#price-special").get('content')))
-        if current_value<=price_value.get():
-            playsound("C:\\Users\\thepu\\Downloads\\whatever.mp3")
-            popup_window(current_value)
-            break
-        else:
-            continue
 
-# Vedant loop
-elif 'vedant' in link_value.get():
-    while True:
-        time.sleep(3)
-        result=requests.get(link_value.get())
-        soup=bs4.BeautifulSoup(result.text,"lxml")
-        script_tag=soup.select('script', type='application/ld+json')[-2]
-        json_data=json.loads(script_tag.contents[0])
-        current_value=int(float(json_data['offers']['price']))
-        if current_value<=price_value.get():
-            playsound("C:\\Users\\thepu\\Downloads\\whatever.mp3")
-            popup_window(current_value)
-            break
-        else:
-            continue
+        if 'prime' in link_value.get():
+            select_price_tag=soup.select("script",type="text/javascript")[34]
+            current_value=int(re.search(r'\d+',select_price_tag.text).group())
+            if current_value<=price_value.get():
+                sound_and_window()
+                break
+            else:
+                continue
+
+        elif 'mdcomputers' in link_value.get():
+            current_value=int(float(soup.select_one("#price-special").get('content')))
+            if current_value<=price_value.get():
+                sound_and_window()
+                break
+            else:
+                continue
+
+        elif 'vedant' in link_value.get():
+            script_tag=soup.select('script', type='application/ld+json')[-2]
+            json_data=json.loads(script_tag.contents[0])
+            current_value=int(float(json_data['offers']['price']))
+            if current_value<=price_value.get():
+                sound_and_window()
+                break
+            else:
+                continue
+    except:
+        print('an error occured')
+    finally:
+        break
