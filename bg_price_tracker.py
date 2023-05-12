@@ -1,6 +1,6 @@
 '''
 SG
-May 11th 2023
+May 13th 2023
 python 3.10.10
 pyinstaller 5.1
 requests 2.28.1
@@ -34,6 +34,7 @@ def open_link():
 
 # a default popup window for every alert
 def popup_window(current_value):
+    playsound("whatever.mp3")
     popup=Tk()
     popup.title("")
     popup.geometry('400x200')
@@ -49,11 +50,16 @@ def popup_window(current_value):
     popup.attributes('-topmost', True)
     popup.after_idle(popup.attributes, '-topmost', False)
     popup.mainloop()
-
-# sound and window function
-def sound_and_window():
-    playsound("whatever.mp3")
-    popup_window(current_value)
+    
+def error_window_func():
+        error_window=Tk()
+        error_window.title("Error!")
+        error_window.geometry("400x200")
+        error_label=Label(error_window,text="Please enter a valid link!")
+        error_label.pack()
+        try_again_button=Button(error_window,text="Try Again")#,command=asker.mainloop())
+        try_again_button.pack()
+        error_window.mainloop()    
 
 # function to only enter digits in price module
 def validate_price_entry(new_value):
@@ -98,7 +104,7 @@ while True:
             select_price_tag=soup.select("script",type="text/javascript")[34]
             current_value=int(re.search(r'\d+',select_price_tag.text).group())
             if current_value<=price_value.get():
-                sound_and_window()
+                popup_window(current_value)
                 break
             else:
                 continue
@@ -106,7 +112,7 @@ while True:
         elif 'mdcomputers' in link_value.get():
             current_value=int(float(soup.select_one("#price-special").get('content')))
             if current_value<=price_value.get():
-                sound_and_window()
+                popup_window(current_value)
                 break
             else:
                 continue
@@ -116,11 +122,11 @@ while True:
             json_data=json.loads(script_tag.contents[0])
             current_value=int(float(json_data['offers']['price']))
             if current_value<=price_value.get():
-                sound_and_window()
+                popup_window(current_value)
                 break
             else:
                 continue
     except:
-        print('an error occured')
+        error_window_func()
     finally:
         break
