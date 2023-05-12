@@ -55,6 +55,13 @@ def sound_and_window():
     playsound("whatever.mp3")
     popup_window(current_value)
 
+# function to only enter digits in price module
+def validate_price_entry(new_value):
+    if new_value.isdigit() or new_value == "":
+        return True
+    else:
+        return False
+
 # creating asking window
 asker=Tk()
 asker.title("Input Example")
@@ -70,7 +77,7 @@ link_entry=Entry(asker, width=20, textvariable=link_value)
 link_entry.pack()
 price_label=Label(asker, text="Price: \n")
 price_label.pack()
-price_entry=Entry(asker, width=20, textvariable=price_value)
+price_entry=Entry(asker, width=20, textvariable=price_value, validate="key", validatecommand=(asker.register(validate_price_entry), "%P"))
 price_entry.pack()
 
 # creating submit button
