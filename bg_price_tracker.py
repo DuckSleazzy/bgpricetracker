@@ -52,14 +52,14 @@ def popup_window(current_value):
     popup.mainloop()
     
 def error_window_func():
-        error_window=Tk()
-        error_window.title("Error!")
-        error_window.geometry("400x200")
-        error_label=Label(error_window,text="Please enter a valid link!")
-        error_label.pack()
-        try_again_button=Button(error_window,text="Try Again")#,command=asker.mainloop())
-        try_again_button.pack()
-        error_window.mainloop()    
+    error_window=Tk()
+    error_window.title("Error!")
+    error_window.geometry("400x200")
+    error_label=Label(error_window,text="Please enter a valid link!")
+    error_label.pack()
+    try_again_button=Button(error_window,text="Try Again",command=asker.mainloop)
+    try_again_button.pack()
+    error_window.mainloop()
 
 # function to only enter digits in price module
 def validate_price_entry(new_value):
@@ -101,8 +101,9 @@ while True:
         soup=bs4.BeautifulSoup(result.text,"lxml")
 
         if 'prime' in link_value.get():
-            select_price_tag=soup.select("script",type="text/javascript")[34]
-            current_value=int(re.search(r'\d+',select_price_tag.text).group())
+            select_price_tag=soup.select("script",type="rocketlazyloadscript")[38]
+            price_match=re.search(r'"price":(\d+)',select_price_tag.text)
+            current_value=int(price_match.group(1))
             if current_value<=price_value.get():
                 popup_window(current_value)
                 break
@@ -130,3 +131,11 @@ while True:
         error_window_func()
     finally:
         break
+    
+'''
+old primeABGB crawler code:
+    replaced May 13th 2023:
+    select_price_tag=soup.select("script",type="text/javascript")[34]
+    current_value=int(re.search(r'\d+',select_price_tag.text).group())
+
+'''
