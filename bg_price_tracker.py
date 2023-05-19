@@ -99,17 +99,24 @@ while True:
     try:
         result=requests.get(link_value.get())
         soup=bs4.BeautifulSoup(result.text,"lxml")
-
+        
+        # Prime logic
         if 'prime' in link_value.get():
-            select_price_tag=soup.select("script",type="rocketlazyloadscript")[38]
-            price_match=re.search(r'"price":(\d+)',select_price_tag.text)
-            current_value=int(price_match.group(1))
+            price_tag_list=soup.select("script",type="rocketlazyloadscript")
+            for tag in price_tag_list:
+                if 'ASUS' and '4070' and '"price":' in tag.text:
+                    price_match=re.search(r'"price":(\d+)',tag.text)
+                    current_value=int(price_match.group(1))
+                    break
+                else:
+                    continue
             if current_value<=price_value.get():
                 popup_window(current_value)
                 break
             else:
                 continue
 
+        # MDComputers logic
         elif 'mdcomputers' in link_value.get():
             current_value=int(float(soup.select_one("#price-special").get('content')))
             if current_value<=price_value.get():
@@ -118,6 +125,7 @@ while True:
             else:
                 continue
 
+        # Vedant logic
         elif 'vedant' in link_value.get():
             script_tag=soup.select('script', type='application/ld+json')[-2]
             json_data=json.loads(script_tag.contents[0])
